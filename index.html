@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ROAS Haircut</title>
+  <style>
+    @font-face { font-family: "Bricolage Grotesque Condensed"; src: url("fonts/BricolageGrotesque-ExtraBoldCondensed.ttf") format("truetype"); font-weight: 800; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Archivo"; src: url("fonts/Archivo-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+    @font-face { font-family: "Archivo"; src: url("fonts/Archivo-Bold.ttf") format("truetype"); font-weight: 700; font-style: normal; font-display: swap; }
+    :root {
+      --paper: #eef0e4; --paper-raised: #f7f8f1; --ink: #272818; --ink-muted: #5c5e48;
+      --rule: #c9cdb5; --lime: #dcf04a; --on-lime: #272818; --moss: #56620a;
+      --font-display: "Bricolage Grotesque Condensed", "Arial Narrow", "Helvetica Neue", sans-serif;
+      --font-text: Archivo, "Helvetica Neue", Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --paper: #17180d; --paper-raised: #212216; --ink: #eef0e4; --ink-muted: #a6a98f; --rule: #3d3f2e; --moss: #b9cc3a; }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 20px 16px 48px; background: var(--paper); color: var(--ink); font-family: var(--font-text); font-weight: 500; line-height: 1.5; }
+    .wrap { max-width: 760px; margin: 0 auto; }
+    .brandbar { display: block; width: 120px; }
+    .brandbar img { display: block; width: 100%; height: auto; }
+    h1, h2, .big, .stat-value { font-family: var(--font-display); font-weight: 800; }
+    h1 { margin: 18px 0 0; font-size: 3rem; line-height: 1; letter-spacing: -0.01em; text-transform: lowercase; }
+    h1 mark { background: linear-gradient(transparent 28%, var(--lime) 28%, var(--lime) 92%, transparent 92%); color: var(--on-lime); padding: 0 4px; margin: 0 -4px; }
+    h2 { font-size: 1.5rem; margin: 0 0 12px; }
+    .subtitle { color: var(--ink-muted); margin: 6px 0 20px; }
+    b { font-weight: 700; }
+    a { color: var(--moss); text-decoration: underline; }
+    a:hover { background: var(--lime); color: var(--on-lime); }
+    .panel { background: var(--paper-raised); border: 1px solid var(--rule); padding: 18px; margin-bottom: 16px; }
+
+    .waves { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .wave h3 { margin: 0 0 8px; font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; text-transform: lowercase; }
+    label.field { display: block; margin-bottom: 10px; color: var(--ink-muted); font-size: 0.88rem; }
+    label.field span.suffix { color: var(--ink); font-weight: 700; }
+    input[type="number"], select {
+      display: block; width: 100%; margin-top: 4px; padding: 9px 10px; border: 1.5px solid var(--rule); border-radius: 0;
+      background: var(--paper); color: var(--ink); font: 700 1.05rem var(--font-text); font-variant-numeric: tabular-nums;
+    }
+    input[type="number"]:hover, select:hover { border-color: var(--ink); }
+    :focus-visible { outline: 2px solid var(--ink) !important; outline-offset: 2px; }
+    .adv { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px 16px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--rule); }
+    .adv label.field { margin: 0; }
+    .hint { color: var(--ink-muted); font-size: 0.85rem; margin: 10px 0 0; }
+    #err { color: var(--ink); background: var(--lime); font-weight: 700; padding: 8px 10px; margin-top: 12px; display: none; }
+
+    .verdict { border-left: 4px solid var(--ink); padding: 4px 0 4px 16px; margin-bottom: 18px; }
+    .verdict .label { color: var(--ink-muted); font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+    .big { font-size: 3.4rem; line-height: 1; text-transform: lowercase; margin: 4px 0 8px; }
+    .big span { background: linear-gradient(transparent 28%, var(--lime) 28%, var(--lime) 92%, transparent 92%); color: var(--on-lime); padding: 0 6px; margin: 0 -6px; }
+    .big.none span { background: none; color: var(--ink); padding: 0; margin: 0; }
+    .plain { margin: 0; font-size: 1.02rem; }
+    .readouts { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .stat { background: var(--paper); border: 1px solid var(--rule); padding: 14px; }
+    .stat-label { color: var(--ink-muted); font-size: 0.82rem; }
+    .stat-value { font-size: 2.1rem; line-height: 1.05; font-variant-numeric: tabular-nums; margin: 2px 0 4px; }
+    .stat-help { color: var(--ink-muted); font-size: 0.78rem; line-height: 1.4; }
+
+    svg { width: 100%; height: auto; display: block; }
+    .axis { stroke: var(--ink-muted); stroke-width: 1; }
+    .zero { stroke: var(--ink); stroke-width: 1.5; stroke-dasharray: 4 4; }
+    .tick { fill: var(--ink-muted); font-size: 11px; }
+    .cap { fill: var(--ink-muted); font-size: 12px; }
+    .band { fill: var(--ink-muted); opacity: .16; }
+    .ci { stroke: var(--ink); stroke-width: 6; }
+    .ci-cap { stroke: var(--ink); stroke-width: 2; }
+    .pt { fill: var(--lime); stroke: var(--ink); stroke-width: 2.5; }
+
+    table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--rule); font-size: 0.95rem; }
+    th { color: var(--ink-muted); font-weight: 700; font-size: 0.8rem; }
+    tr.you td { background: var(--lime); color: var(--on-lime); font-weight: 700; }
+
+    button { font: 700 0.95rem var(--font-text); padding: 10px 14px; border: 1.5px solid var(--ink); background: var(--paper); color: var(--ink); border-radius: 0; cursor: pointer; margin-right: 8px; }
+    button:hover { background: var(--lime); color: var(--on-lime); }
+    .actions { margin-top: 14px; }
+
+    details.learn { border-top: 1px solid var(--rule); padding: 12px 0; }
+    details.learn:first-of-type { border-top: 0; padding-top: 0; }
+    details.learn summary { cursor: pointer; font-weight: 700; }
+    details.learn summary:hover { background: var(--lime); color: var(--on-lime); }
+    details.learn .body { color: var(--ink-muted); font-size: 0.95rem; margin-top: 10px; }
+    details.learn .body p { margin: 0 0 10px; }
+    .formula { background: var(--paper); border: 1px solid var(--rule); padding: 14px; color: var(--ink); font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.88rem; overflow-x: auto; white-space: pre-wrap; }
+    .caveats p { color: var(--ink-muted); font-size: 0.95rem; margin: 0 0 10px; }
+    .caveats p:last-child { margin: 0; }
+    .caveats b { color: var(--ink); }
+    .site-foot { margin-top: 32px; padding-top: 16px; border-top: 1px solid var(--rule); color: var(--ink-muted); font-size: 0.82rem; }
+    .site-foot img { display: block; width: 150px; height: auto; margin-bottom: 8px; }
+    .site-foot p { margin: 0; }
+    .tag { display: inline-block; background: var(--lime); color: var(--on-lime); font-weight: 700; font-size: 0.7rem; padding: 0 5px; margin-right: 6px; border: 1.5px solid var(--ink); }
+    @media (max-width: 520px) { h1 { font-size: 2.4rem; } .big { font-size: 2.5rem; } .waves { gap: 10px; } .panel { padding: 14px; } }
+  
+    .inputs { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px 16px; }
+    .inputs.tight { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+    label.check { display: flex; gap: 8px; align-items: center; color: var(--ink); font-size: 0.95rem; margin-bottom: 8px; }
+    label.check input { accent-color: var(--moss); width: 18px; height: 18px; margin: 0; }
+    input[type="range"] { width: 100%; accent-color: var(--moss); margin: 4px 0 0; }
+    input[type="text"], textarea { display: block; width: 100%; margin-top: 4px; padding: 9px 10px; border: 1.5px solid var(--rule); border-radius: 0; background: var(--paper); color: var(--ink); font: 500 1rem var(--font-text); }
+    input[type="text"]:hover, textarea:hover { border-color: var(--ink); }
+    .out { font-variant-numeric: tabular-nums; color: var(--ink); font-weight: 700; }
+    .section-h { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; text-transform: lowercase; margin: 0 0 8px; }
+    .barrow { display: grid; grid-template-columns: 120px 1fr 70px; gap: 10px; align-items: center; margin: 6px 0; font-size: 0.92rem; }
+    .barrow .track { background: var(--paper); border: 1px solid var(--rule); height: 18px; position: relative; }
+    .barrow .fill { background: var(--ink); height: 100%; }
+    .barrow .fill.lime { background: var(--lime); border-right: 2px solid var(--ink); }
+    .barrow .val { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
+    .tbl-wrap { overflow-x: auto; }
+    @media (max-width: 520px) { .barrow { grid-template-columns: 90px 1fr 56px; } }
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <a class="brandbar" href="https://github.com/ben-j-ads" aria-label="ben.j.ads">
+      <picture><source media="(prefers-color-scheme: dark)" srcset="logo/benjads-base-paper-transparent.svg"><img src="logo/benjads-base-olive-transparent.svg" alt="ben.j.ads"></picture>
+    </a>
+    <h1>roas <mark>haircut</mark></h1>
+    <p class="subtitle">Your platform says 4x. How much of that has to be real for the ads to pay? Find the number before you scale or cut.</p>
+
+    <section class="panel">
+      <div class="inputs">
+        <label class="field">Reported ROAS (platform revenue / spend)
+          <input type="number" id="roas" min="0.01" step="0.1" inputmode="decimal"></label>
+        <label class="field">Contribution margin before ad spend <span class="suffix">%</span>
+          <input type="number" id="mar" min="1" max="100" step="1" inputmode="decimal"></label>
+        <label class="field">Your best guess: share of reported sales that are truly incremental <span class="suffix">%</span>
+          <input type="number" id="guess" min="1" max="100" step="1" inputmode="numeric"></label>
+        <label class="field">Monthly spend, optional <span class="suffix">$</span>
+          <input type="number" id="spend" min="0" step="500" inputmode="numeric"></label>
+      </div>
+      <p class="hint">Contribution margin is what is left of each sale after product cost, shipping, fees and returns, before ads. Incremental means sales that would not have happened without the ads. Nobody knows that share without a test, so the verdict does not depend on your guess.</p>
+      <div id="err" role="alert"></div>
+    </section>
+
+    <section class="panel">
+      <div class="verdict">
+        <div class="label">verdict</div>
+        <div class="big" id="vbig"></div>
+        <p class="plain" id="plain"></p>
+      </div>
+      <div class="readouts">
+        <div class="stat"><div class="stat-label">Breakeven ROAS</div><div class="stat-value" id="s-be"></div><div class="stat-help">1 / margin. Incremental revenue per $1 of spend must reach this.</div></div>
+        <div class="stat"><div class="stat-label">Incremental share needed</div><div class="stat-value" id="s-need"></div><div class="stat-help">Of reported sales, to break even.</div></div>
+        <div class="stat"><div class="stat-label">At your guess: incremental ROAS</div><div class="stat-value" id="s-inc"></div><div class="stat-help" id="s-inc-help"></div></div>
+        <div class="stat"><div class="stat-label">At your guess: profit per $100</div><div class="stat-value" id="s-pr"></div><div class="stat-help" id="s-pr-help"></div></div>
+      </div>
+      <div class="actions"><button id="card">Download card</button><button id="copy">Copy link</button><span id="copied" class="hint" style="margin-left:4px"></span></div>
+    </section>
+
+    <section class="panel">
+      <h2>If the truth is lower</h2>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Truly incremental</th><th>Incremental ROAS</th><th>Profit per $100 of spend</th><th>Per month</th></tr></thead>
+        <tbody id="tbl"></tbody>
+      </table></div>
+      <p class="hint">Reported ROAS counts every sale the platform can link to an ad, including people who would have bought anyway. Retargeting and brand search usually overstate the most, and cold prospecting least, but by how much is for a test to say.</p>
+    </section>
+
+    <section class="panel">
+      <h2>How it works</h2>
+      <details class="learn">
+        <summary>The arithmetic</summary>
+        <div class="body">
+          <div class="formula">breakeven ROAS = 1 / contribution margin
+incremental ROAS = reported ROAS x incremental share
+profit per $1 = incremental ROAS x margin - 1
+share needed to break even = 1 / (reported ROAS x margin)</div>
+          <p>Nothing here is estimated. It only turns your reported ROAS and margin into the one number that matters: how much of the reported result has to be real for the ads to pay.</p>
+        </div>
+      </details>
+      <details class="learn">
+        <summary>The verdict</summary>
+        <div class="body">
+          <p><b>losing money:</b> even if every reported sale is incremental, ROAS is below breakeven.</p>
+          <p><b>fragile:</b> 75% or more of reported sales would need to be incremental.</p>
+          <p><b>depends on incrementality:</b> between 40% and 75% needs to be incremental. This is where a holdout test earns its cost.</p>
+          <p><b>comfortable:</b> under 40% needs to be incremental. The cut-offs are this tool's choice.</p>
+        </div>
+      </details>
+      <details class="learn">
+        <summary>Reported vs real ROAS in 2026</summary>
+        <div class="body">
+          <p>Agency and vendor write-ups describe Meta changing its attribution reporting in 2026, including which actions count as click-through and engaged-view conversions, and advertisers seeing reported ROAS move with no change in sales. I could not confirm the details against Meta's own documentation, and the write-ups disagree on dates and direction. Compare periods that use the same attribution setting, trust sales in your own system over any platform's total, and check Meta's documentation before relying on a specific change.</p>
+        </div>
+      </details>
+    </section>
+
+    <section class="panel caveats">
+      <h2>Read this before you cut a budget on this</h2>
+      <p><b>This does not measure incrementality.</b> It tells you how much you need. A holdout or geo test tells you how much you have.</p>
+      <p><b>Margin is the soft spot.</b> Include shipping, returns, payment fees and discounts. A margin that is too high flatters every row.</p>
+      <p><b>New customers are worth more than one sale.</b> If the ads bring repeat buyers, one-sale profit understates them. Use a margin that includes expected repeat value if you can defend it.</p>
+    </section>
+
+    <footer class="site-foot">
+      <picture><source media="(prefers-color-scheme: dark)" srcset="logo/benjads-footnote-paper-transparent.svg"><img src="logo/benjads-footnote-olive-transparent.svg" alt="ben.j.ads"></picture>
+      <p><span class="tag">1</span>Breakeven arithmetic on contribution margin. Not an incrementality estimate. Marketing science, given away free, for people who spend money.</p>
+    </footer>
+  </div>
+  <script>
+
+    // ---- shared helpers ----
+    const $ = (id) => document.getElementById(id);
+    const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+    const sgn = (v, dp = 1) => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(dp);
+    const fmtN = (n) => Math.round(n).toLocaleString('en-US');
+    const fmtMoney = (n) => '$' + Math.round(n).toLocaleString('en-US');
+    function normCdf(x) {
+      const s = x < 0 ? -1 : 1, t = 1 / (1 + 0.3275911 * Math.abs(x) / Math.SQRT2);
+      const y = 1 - (((((1.061405429 * t - 1.453152027) * t) + 1.421413741) * t - 0.284496736) * t + 0.254829592) * t * Math.exp(-(x * x) / 2);
+      return 0.5 * (1 + s * y);
+    }
+    function normQuantile(p) {
+      let lo = -10, hi = 10;
+      for (let i = 0; i < 80; i++) { const m = (lo + hi) / 2; if (normCdf(m) < p) lo = m; else hi = m; }
+      return (lo + hi) / 2;
+    }
+    // Inputs <-> URL hash, so a link carries the numbers.
+    function bindInputs(ids, defaults, onChange) {
+      const q = {};
+      if (location.hash.length > 1) location.hash.slice(1).split('&').forEach((kv) => {
+        const [k, val] = kv.split('=');
+        if (k in defaults && val !== undefined && val !== '') q[k] = decodeURIComponent(val);
+      });
+      const v0 = Object.assign({}, defaults, q);
+      for (const id of ids) {
+        const el = $(id); if (!el) continue;
+        if (el.type === 'checkbox') el.checked = String(v0[id]) === '1' || v0[id] === true || v0[id] === 'true'; else el.value = v0[id];
+      }
+      const handler = () => {
+        onChange();
+        try { history.replaceState(null, '', '#' + ids.filter((id) => $(id)).map((id) => `${id}=${encodeURIComponent($(id).type === 'checkbox' ? ($(id).checked ? 1 : 0) : $(id).value)}`).join('&')); } catch (e) {}
+      };
+      ids.forEach((id) => { const el = $(id); if (!el) return; el.addEventListener('input', handler); el.addEventListener('change', handler); });
+      handler();
+    }
+    function wireCopy(btnId, noteId) {
+      const b = $(btnId); if (!b) return;
+      b.addEventListener('click', async () => {
+        try { await navigator.clipboard.writeText(location.href); $(noteId).textContent = 'Link copied.'; }
+        catch (e) { $(noteId).textContent = 'Copy the address bar. It holds your numbers.'; }
+        setTimeout(() => { $(noteId).textContent = ''; }, 2500);
+      });
+    }
+    // Share card: 1080 x 1350 paper ground, wordmark, kicker, headline, big line, muted lines, optional extra drawing, footnote.
+    async function makeCard(o) {
+      try { await document.fonts.load('800 100px "Bricolage Grotesque Condensed"'); await document.fonts.load('500 30px Archivo'); await document.fonts.load('700 30px Archivo'); } catch (e) {}
+      const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
+      const x = c.getContext('2d');
+      const PAPER = '#eef0e4', INK = '#272818', MUTED = '#5c5e48', LIME = '#dcf04a';
+      x.fillStyle = PAPER; x.fillRect(0, 0, W, H);
+      const disp = (s) => `800 ${s}px "Bricolage Grotesque Condensed", "Arial Narrow", sans-serif`;
+      const txt = (s, w = 500) => `${w} ${s}px Archivo, Arial, sans-serif`;
+      x.font = disp(64); x.textBaseline = 'alphabetic';
+      let cx = 80; const wy = 130;
+      for (const part of ['ben', 'j', 'ads']) {
+        x.fillStyle = INK; x.fillText(part, cx, wy); cx += x.measureText(part).width;
+        if (part !== 'ads') { x.fillStyle = LIME; x.strokeStyle = INK; x.lineWidth = 3; x.fillRect(cx + 4, wy - 14, 14, 14); x.strokeRect(cx + 4, wy - 14, 14, 14); cx += 24; }
+      }
+      x.fillStyle = MUTED; x.font = txt(30, 700); x.fillText((o.kicker || '').toUpperCase(), 80, 250);
+      let fs = 200; x.font = disp(fs);
+      while (x.measureText(o.headline).width > W - 200 && fs > 70) { fs -= 8; x.font = disp(fs); }
+      const mw = x.measureText(o.headline).width;
+      if (o.hl) { x.fillStyle = LIME; x.fillRect(70, 280 + fs * 0.02, mw + 20, fs * 0.72); }
+      x.fillStyle = INK; x.fillText(o.headline, 80, 280 + fs * 0.78);
+      let y = 280 + fs * 0.78 + 190;
+      if (o.big) {
+        let bs = 130; x.font = disp(bs);
+        while (x.measureText(o.big).width > W - 160 && bs > 50) { bs -= 6; x.font = disp(bs); }
+        x.fillStyle = INK; x.fillText(o.big, 80, y); y += 70;
+      }
+      x.fillStyle = MUTED; x.font = txt(36);
+      for (const l of (o.lines || [])) { x.fillText(l, 80, y); y += 54; }
+      if (o.extra) y = o.extra(x, y + 30, { W, H, INK, LIME, MUTED, PAPER, disp, txt }) || y;
+      x.fillStyle = LIME; x.strokeStyle = INK; x.lineWidth = 3; x.fillRect(80, H - 120, 34, 34); x.strokeRect(80, H - 120, 34, 34);
+      x.fillStyle = INK; x.font = txt(24, 700); x.fillText('1', 91, H - 95);
+      x.fillStyle = MUTED; x.font = txt(26); x.fillText(o.foot || '', 130, H - 94);
+      x.fillStyle = INK; x.font = disp(40); x.textAlign = 'right'; x.fillText('ben.j.ads', W - 80, H - 90); x.textAlign = 'left';
+      c.toBlob((blob) => {
+        if (!blob) return;
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (o.file || 'ben-j-ads') + '.png'; a.click();
+        setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      }, 'image/png');
+    }
+
+
+    const IDS = ['roas', 'mar', 'guess', 'spend'];
+    const DEFAULTS = { roas: 4, mar: 40, guess: 60, spend: 20000 };
+    function validate(v) {
+      if (!(v.roas > 0)) return 'Reported ROAS must be above zero.';
+      if (!(v.mar > 0 && v.mar <= 100)) return 'Margin must be between 0 and 100%.';
+      if (!(v.guess > 0 && v.guess <= 100)) return 'Incremental share must be between 0 and 100%.';
+      if (!(v.spend >= 0)) return 'Spend cannot be negative.';
+      return '';
+    }
+    const money = (x) => (x < 0 ? '−' : '') + '$' + Math.round(Math.abs(x)).toLocaleString('en-US');
+    const pc = (x, dp = 0) => (x * 100).toFixed(dp) + '%';
+    let last = null;
+    function calc(v, inc) {
+      const roasInc = v.roas * inc, per = roasInc * (v.mar / 100) - 1;
+      return { roasInc, per100: per * 100, month: per * v.spend };
+    }
+    function update() {
+      const v = {}; for (const id of IDS) v[id] = Number($(id).value);
+      const err = validate(v);
+      $('err').style.display = err ? 'block' : 'none'; $('err').textContent = err;
+      if (err) { last = null; return; }
+      const margin = v.mar / 100, be = 1 / margin, need = 1 / (v.roas * margin);
+      const verdict = need > 1 ? 'losing money' : need >= 0.75 ? 'fragile' : need >= 0.4 ? 'depends on incrementality' : 'comfortable';
+      const g = calc(v, v.guess / 100);
+      last = { v, be, need, verdict, g };
+      $('vbig').innerHTML = `<span>${verdict}.</span>`;
+      $('vbig').className = 'big' + (verdict === 'comfortable' ? ' none' : '');
+      $('plain').textContent = `At a ${v.mar}% margin you need $${be.toFixed(2)} of incremental revenue for every $1 of spend. Your reported ROAS is ${v.roas.toFixed(2)}. ` +
+        (need > 1 ? 'That is below breakeven even if every reported sale is incremental.' : `So at least ${pc(need)} of the sales the platform reports have to be truly incremental for the ads to pay. ${need >= 0.4 ? 'That is worth testing before you scale or cut.' : 'That is a low bar.'}`);
+      $('s-be').textContent = be.toFixed(2);
+      $('s-need').textContent = need > 1 ? 'More than 100%' : pc(need);
+      $('s-inc').textContent = g.roasInc.toFixed(2);
+      $('s-inc-help').textContent = `${v.roas.toFixed(2)} x ${v.guess}% incremental.`;
+      $('s-pr').textContent = money(g.per100);
+      $('s-pr-help').textContent = v.spend > 0 ? `${money(g.month)} a month on ${money(v.spend)} of spend.` : 'Add monthly spend to see a monthly figure.';
+      const rows = [100, 80, 60, 40, 20]; if (!rows.includes(v.guess)) rows.push(v.guess); rows.sort((a, b) => b - a);
+      $('tbl').innerHTML = rows.map((p) => {
+        const q = calc(v, p / 100);
+        return `<tr class="${p === v.guess ? 'you' : ''}"><td>${p}%${p === v.guess ? ' (your guess)' : ''}</td><td>${q.roasInc.toFixed(2)}</td><td>${money(q.per100)}</td><td>${v.spend > 0 ? money(q.month) : 'n/a'}</td></tr>`;
+      }).join('');
+    }
+    $('card').addEventListener('click', () => {
+      if (!last) return; const { v, be, need, verdict } = last;
+      makeCard({ file: 'roas-haircut', kicker: 'ROAS haircut', headline: verdict + '.', hl: verdict !== 'comfortable',
+        big: need > 1 ? 'below breakeven' : `needs ${pc(need)} incremental`,
+        lines: [`Reported ROAS ${v.roas.toFixed(2)}, margin ${v.mar}%`, `Breakeven ROAS ${be.toFixed(2)}`, 'A test says how much is real.'],
+        foot: 'Arithmetic on your numbers. It does not measure incrementality.' });
+    });
+    wireCopy('copy', 'copied');
+    bindInputs(IDS, DEFAULTS, update);
+
+  </script>
+</body>
+</html>
