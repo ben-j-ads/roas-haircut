@@ -113,6 +113,14 @@
     @media (max-width: 520px) { .barrow { grid-template-columns: 90px 1fr 56px; } }
 
     @media (prefers-color-scheme: dark) { h1 mark, .big span { background: linear-gradient(transparent 4%, var(--lime) 4%, var(--lime) 98%, transparent 98%); } }
+
+    /* polish: aligned inputs, chart label halo, next-step link */
+    .inputs, .adv { align-items: end; }
+    #chart .cap { paint-order: stroke; stroke: var(--paper-raised); stroke-width: 4px; stroke-linejoin: round; }
+    .next-step { border: 1px solid var(--rule); border-left: 4px solid var(--ink); background: var(--paper-raised); padding: 14px 16px; margin: 24px 0 0; }
+    .next-step .k { color: var(--ink-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; }
+    .next-step a { font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; text-transform: lowercase; }
+    .next-step p { margin: 4px 0 0; color: var(--ink-muted); font-size: 0.92rem; }
   </style>
 </head>
 <body>
@@ -126,13 +134,13 @@
     <section class="panel">
       <div class="inputs">
         <label class="field">Reported ROAS (platform revenue / spend)
-          <input type="number" id="roas" min="0.01" step="0.1" inputmode="decimal"></label>
+          <input autocomplete="off" type="number" id="roas" min="0.01" step="0.1" inputmode="decimal"></label>
         <label class="field">Contribution margin before ad spend <span class="suffix">%</span>
-          <input type="number" id="mar" min="1" max="100" step="1" inputmode="decimal"></label>
+          <input autocomplete="off" type="number" id="mar" min="1" max="100" step="1" inputmode="decimal"></label>
         <label class="field">Your best guess: share of reported sales that are truly incremental <span class="suffix">%</span>
-          <input type="number" id="guess" min="1" max="100" step="1" inputmode="numeric"></label>
+          <input autocomplete="off" type="number" id="guess" min="1" max="100" step="1" inputmode="numeric"></label>
         <label class="field">Monthly spend, optional <span class="suffix">$</span>
-          <input type="number" id="spend" min="0" step="500" inputmode="numeric"></label>
+          <input autocomplete="off" type="number" id="spend" min="0" step="500" inputmode="numeric"></label>
       </div>
       <p class="hint">Contribution margin is what is left of each sale after product cost, shipping, fees and returns, before ads. Incremental means sales that would not have happened without the ads. Nobody knows that share without a test, so the verdict does not depend on your guess.</p>
       <div id="err" role="alert"></div>
@@ -198,6 +206,7 @@ share needed to break even = 1 / (reported ROAS x margin)</div>
       <p><b>New customers are worth more than one sale.</b> If the ads bring repeat buyers, one-sale profit understates them. Use a margin that includes expected repeat value if you can defend it.</p>
     </section>
 
+    <section class="next-step"><div class="k">next</div><a href="https://which-test-can-i-run.benjads.com/">which test can i run</a><p>Find the test that tells you how much of it is real.</p></section>
     <footer class="site-foot">
       <picture><source media="(prefers-color-scheme: dark)" srcset="logo/benjads-footnote-paper-transparent.svg"><img src="logo/benjads-footnote-olive-transparent.svg" alt="ben.j.ads"></picture>
       <p><span class="tag">1</span>Breakeven arithmetic on contribution margin. Not an incrementality estimate. Marketing science, given away free, for people who spend money.</p>
